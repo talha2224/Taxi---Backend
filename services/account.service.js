@@ -10,7 +10,7 @@ const { uploadFile, generatePin, sendOtp } = require("../utils/function")
 
 const createAccount = async (req, res) => {
     try {
-        let { role, username, email, password, dob, phone } = req.body
+        let { role, username, email, password, dob, phone,category} = req.body
         let findUser = await Account.findOne({ email })
         if (findUser) {
             return res.status(400).json({ data: null, msg: "Account already exits", code: 400 })
@@ -62,7 +62,7 @@ const createAccount = async (req, res) => {
                 let pin = generatePin()
                 const sendSms = await sendOtp(phone, pin);
                 if(sendSms){
-                    let result = await Account.create({otp:pin,phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2 })
+                    let result = await Account.create({category,otp:pin,phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2 })
                     return res.status(200).json({ data: result, msg: null, status: 200 })
                 }
             }
@@ -144,7 +144,7 @@ const verifyOtp = async (req,res) =>{
 
 const getAccountById = async (req, res) => {
     try {
-        let findUser = await Account.findById(req.params.id)
+        let findUser = await Account.findById(req.params.id).populate("category")
         return res.status(200).json({ data: findUser, code: 200 })
 
     }

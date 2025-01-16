@@ -13,6 +13,7 @@ const AccountSchema = mongoose.Schema({
     licenseImage: { type: Array, default: null },
     insuranceImage: { type: Array, default: null },
     carPhoto:{ type: Array, required: true },
+    category:{type:mongoose.Schema.Types.ObjectId,ref:"Category"},
     otp:{type:Number,default:null},
     accountVerified:{type:Boolean,default:false}
 })
