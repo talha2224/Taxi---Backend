@@ -10,7 +10,7 @@ const { uploadFile, generatePin, sendOtp } = require("../utils/function")
 
 const createAccount = async (req, res) => {
     try {
-        let { role, username, email, password, dob, phone,category} = req.body
+        let { role, username, email, password, dob, phone,category,vehcileName,vehicleNumber,longitude,latitude} = req.body
         let findUser = await Account.findOne({ email })
         if (findUser) {
             return res.status(400).json({ data: null, msg: "Account already exits", code: 400 })
@@ -23,7 +23,7 @@ const createAccount = async (req, res) => {
                 let pin = generatePin()
                 const sendSms = await sendOtp(phone, pin);
                 if (sendSms) {
-                    let result = await Account.create({ phone, role, username, email, password: hash, dob, profilePhoto: output, otp: pin })
+                    let result = await Account.create({ phone, role, username, email, password: hash, dob, profilePhoto: output, otp: pin,longitude,latitude })
                     return res.status(200).json({ data: result, msg: null, status: 200 })
                 }
             }
@@ -62,7 +62,7 @@ const createAccount = async (req, res) => {
                 let pin = generatePin()
                 const sendSms = await sendOtp(phone, pin);
                 if(sendSms){
-                    let result = await Account.create({category,otp:pin,phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2 })
+                    let result = await Account.create({rate,category,otp:pin,phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2,vehcileName,vehicleNumber,longitude,latitude })
                     return res.status(200).json({ data: result, msg: null, status: 200 })
                 }
             }
@@ -141,7 +141,6 @@ const verifyOtp = async (req,res) =>{
         console.log(error)
     }
 }
-
 const getAccountById = async (req, res) => {
     try {
         let findUser = await Account.findById(req.params.id).populate("category")
@@ -152,6 +151,52 @@ const getAccountById = async (req, res) => {
         console.log(error)
     }
 }
+const getAccountByCategory = async (req, res) => {
+    try {
+        let findUser = await Account.find({category:req.params.id}).populate("category")
+        return res.status(200).json({ data: findUser, code: 200 })
+
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
+const changeLocation = async (req,res) =>{
+    try {
+        let {id} = req.params
+        let user = await Account.findByIdAndUpdate(id,{latitude:req.body.latitude,longitude:req.body.longitude},{new:true})
+        if (!user) {
+            return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
+        }
+        else{
+            return res.status(200).json({ data: user, msg: "Location Updated", code: 200 })
+
+        }
+    } 
+    catch (error) {
+        console.log(error)
+    }
+}
+
+const changeRate= async (req,res) =>{
+    try {
+        let {id} = req.params
+        let user = await Account.findByIdAndUpdate(id,{rate:req.body.rate},{new:true})
+        if (!user) {
+            return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
+        }
+        else{
+            return res.status(200).json({ data: user, msg: "Rate Updated", code: 200 })
+
+        }
+    } 
+    catch (error) {
+        console.log(error)
+    }
+}
 
 
-module.exports = { createAccount, loginAccount, getAccountById, resendOtp , verifyOtp}
+
+
+module.exports = { createAccount, loginAccount, getAccountById, resendOtp , verifyOtp, changeLocation, changeRate,getAccountByCategory}
