@@ -72,7 +72,7 @@ const createAccount = async (req, res) => {
 }
 const loginAccount = async (req, res) => {
     try {
-        let { phone, password } = req.body
+        let { phone} = req.body
         let findUser = await Account.findOne({ phone })
         if (!findUser) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
@@ -84,16 +84,10 @@ const loginAccount = async (req, res) => {
             return res.status(403).json({ data: null, msg: "Account not verified we have to send otp to your mobile number", code: 403 })
         }
         else {
-            let compare = await bcrypt.compare(password, findUser.password)
-            if (compare) {
-                let pin = generatePin()
-                await sendOtp(findUser?.phone, pin);
-                await Account.findByIdAndUpdate(findUser?._id,{otp:pin},{new:true})
-                return res.status(200).json({ data: findUser, code: 200,msg:"Login Sucesfull Otp Has Been Sent Tour Phone" })
-            }
-            else {
-                return res.status(403).json({ data: null, msg: "Invalid credentails", code: 403 })
-            }
+            let pin = generatePin()
+            await sendOtp(findUser?.phone, pin);
+            await Account.findByIdAndUpdate(findUser?._id,{otp:pin},{new:true})
+            return res.status(200).json({otp:pin,data: findUser, code: 200,msg:"Login Sucesfull Otp Has Been Sent Tour Phone" })
         }
     }
     catch (error) {
