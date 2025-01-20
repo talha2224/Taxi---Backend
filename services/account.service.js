@@ -61,10 +61,8 @@ const createAccount = async (req, res) => {
                 let hash = await bcrypt.hash(password, 10)
                 let pin = generatePin()
                 const sendSms = await sendOtp(phone, pin);
-                if(sendSms){
-                    let result = await Account.create({rate,category,otp:pin,phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2,vehcileName,vehicleNumber,longitude,latitude })
-                    return res.status(200).json({ data: result, msg: null, status: 200 })
-                }
+                let result = await Account.create({rate,category,otp:pin,phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2,vehcileName,vehicleNumber,longitude,latitude })
+                    return res.status(200).json({otp:pin,data: result, msg: null, status: 200 })
             }
         }
     }
