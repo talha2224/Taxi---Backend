@@ -10,7 +10,7 @@ const { uploadFile, generatePin, sendOtp } = require("../utils/function")
 
 const createAccount = async (req, res) => {
     try {
-        let { role, username, email, password, dob, phone,category,vehcileName,vehicleNumber,longitude,latitude} = req.body
+        let { role, username, email, password, dob, phone,category,vehcileName,vehicleNumber,longitude,latitude,rate} = req.body
         let findUser = await Account.findOne({ email })
         if (findUser) {
             return res.status(400).json({ data: null, msg: "Account already exits", code: 400 })
