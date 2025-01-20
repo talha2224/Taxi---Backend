@@ -88,6 +88,7 @@ const loginAccount = async (req, res) => {
         else {
             let compare = await bcrypt.compare(password, findUser.password)
             if (compare) {
+                let pin = generatePin()
                 await sendOtp(findUser?.phone, pin);
                 await Account.findByIdAndUpdate(findUser?._id,{otp:pin},{new:true})
                 return res.status(200).json({ data: findUser, code: 200,msg:"Login Sucesfull Otp Has Been Sent Tour Phone" })
