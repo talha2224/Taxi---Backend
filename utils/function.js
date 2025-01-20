@@ -20,6 +20,7 @@ module.exports = {
         return downloadUrl
     }),
     sendOtp: async (phoneNumber, otp) => {
+        console.log(phoneNumber,otp,'console add ed in send otp')
         try {
             const message = await client.messages.create({ body: `Your OTP is: ${otp}`, from: twilioPhoneNumber, to: phoneNumber, });
             console.log('Message sent:', message.sid);
