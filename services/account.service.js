@@ -87,7 +87,7 @@ const loginAccount = async (req, res) => {
             let pin = generatePin()
             await sendOtp(findUser?.phone, pin);
             await Account.findByIdAndUpdate(findUser?._id,{otp:pin},{new:true})
-            return res.status(200).json({otp:pin,data: findUser, code: 200,msg:"Login Sucesfull Otp Has Been Sent Tour Phone" })
+            return res.status(200).json({otp:pin,data: findUser, code: 200,msg:"Login successful" })
         }
     }
     catch (error) {
