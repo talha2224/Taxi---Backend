@@ -23,7 +23,7 @@ const createAccount = async (req, res) => {
                 let pin = generatePin()
                 const sendSms = await sendOtp(phone, pin);
                 if (sendSms) {
-                    let result = await Account.create({ phone, role, username, email, password: hash, dob, profilePhoto: output, otp: pin,longitude,latitude })
+                    let result = await Account.create({ phone, role, username, email, password: hash, dob, profilePhoto: output, otp: pin, longitude, latitude })
                     return res.status(200).json({ data: result, msg: null, status: 200 })
                 }
             }
@@ -77,10 +77,10 @@ const loginAccount = async (req, res) => {
         if (!findUser) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
         }
-        else if(!findUser.accountVerified){
+        else if (!findUser.accountVerified) {
             let pin = generatePin()
             await sendOtp(findUser?.phone, pin);
-            await Account.findByIdAndUpdate(findUser?._id,{otp:pin},{new:true})
+            await Account.findByIdAndUpdate(findUser?._id, { otp: pin }, { new: true })
             return res.status(403).json({ data: null, msg: "Account not verified we have to send otp to your mobile number", code: 403 })
         }
         else {
@@ -95,43 +95,80 @@ const loginAccount = async (req, res) => {
     }
 }
 
-const resendOtp = async (req,res) =>{
+const createAdminAccount = async (req, res) => {
     try {
-        let {id} = req.params
-        let user = await Account.findById(id)
-        if (!user) {
-            return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
+        let { username, email, password } = req.body
+        let findUser = await Account.findOne({ email })
+        if (findUser) {
+            return res.status(400).json({ data: null, msg: "Account already exits", code: 400 })
         }
-        else{
-            let pin = generatePin()
-            await sendOtp(user?.phone, pin);
-            await Account.findByIdAndUpdate(id,{otp:pin},{new:true})
-            return res.status(200).json({ data: null, msg: "OTP send sucessfully", code: 200 })
-
+        else {
+            let hash = await bcrypt.hash(password, 10)
+            let result = await Account.create({ role: "admin", username, email, password: hash })
+            return res.status(200).json({ data: result, msg: "Account created", status: 200 })
         }
-    } 
+    }
     catch (error) {
         console.log(error)
     }
 }
-const verifyOtp = async (req,res) =>{
+const adminLoginAccount = async (req, res) => {
     try {
-        let {id,otp} = req.body
+        let { email, password } = req.body
+        let findUser = await Account.findOne({ email, role: "admin" })
+        if (!findUser) {
+            return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
+        }
+        let compare = await bcrypt.compare(password, findUser.password)
+        if (compare) {
+            return res.status(200).json({ data: findUser, code: 200,msg:"Login Successful" })
+        }
+        else {
+            return res.status(403).json({ data: null, msg: "Invalid credentails", code: 403 })
+        }
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
+const resendOtp = async (req, res) => {
+    try {
+        let { id } = req.params
         let user = await Account.findById(id)
         if (!user) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
         }
-        else{
-            if(otp==user?.otp){
-                await Account.findByIdAndUpdate(id,{otp:null,accountVerified:true},{new:true})
+        else {
+            let pin = generatePin()
+            await sendOtp(user?.phone, pin);
+            await Account.findByIdAndUpdate(id, { otp: pin }, { new: true })
+            return res.status(200).json({ data: null, msg: "OTP send sucessfully", code: 200 })
+
+        }
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+const verifyOtp = async (req, res) => {
+    try {
+        let { id, otp } = req.body
+        let user = await Account.findById(id)
+        if (!user) {
+            return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
+        }
+        else {
+            if (otp == user?.otp) {
+                await Account.findByIdAndUpdate(id, { otp: null, accountVerified: true }, { new: true })
                 return res.status(200).json({ data: user, msg: "Account Verified", code: 200 })
             }
-            else{
+            else {
                 return res.status(403).json({ data: user, msg: "Invalid Otp", code: 403 })
             }
 
         }
-    } 
+    }
     catch (error) {
         console.log(error)
     }
@@ -148,7 +185,7 @@ const getAccountById = async (req, res) => {
 }
 const getAccountByCategory = async (req, res) => {
     try {
-        let findUser = await Account.find({category:req.params.id}).populate("category")
+        let findUser = await Account.find({ category: req.params.id }).populate("category")
         return res.status(200).json({ data: findUser, code: 200 })
 
     }
@@ -157,35 +194,35 @@ const getAccountByCategory = async (req, res) => {
     }
 }
 
-const changeLocation = async (req,res) =>{
+const changeLocation = async (req, res) => {
     try {
-        let {id} = req.params
-        let user = await Account.findByIdAndUpdate(id,{latitude:req.body.latitude,longitude:req.body.longitude},{new:true})
+        let { id } = req.params
+        let user = await Account.findByIdAndUpdate(id, { latitude: req.body.latitude, longitude: req.body.longitude }, { new: true })
         if (!user) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
         }
-        else{
+        else {
             return res.status(200).json({ data: user, msg: "Location Updated", code: 200 })
 
         }
-    } 
+    }
     catch (error) {
         console.log(error)
     }
 }
 
-const changeRate= async (req,res) =>{
+const changeRate = async (req, res) => {
     try {
-        let {id} = req.params
-        let user = await Account.findByIdAndUpdate(id,{rate:req.body.rate},{new:true})
+        let { id } = req.params
+        let user = await Account.findByIdAndUpdate(id, { rate: req.body.rate }, { new: true })
         if (!user) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
         }
-        else{
+        else {
             return res.status(200).json({ data: user, msg: "Rate Updated", code: 200 })
 
         }
-    } 
+    }
     catch (error) {
         console.log(error)
     }
@@ -194,4 +231,4 @@ const changeRate= async (req,res) =>{
 
 
 
-module.exports = { createAccount, loginAccount, getAccountById, resendOtp , verifyOtp, changeLocation, changeRate,getAccountByCategory}
+module.exports = { createAccount, loginAccount, createAdminAccount, adminLoginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory }

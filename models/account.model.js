@@ -3,13 +3,13 @@ const mongoose = require("mongoose")
 
 
 const AccountSchema = mongoose.Schema({
-    role:{type:String,required:true},
-    username:{type:String,required:true},
-    email:{type:String,required:true},
-    phone:{type:String,required:true},
-    password:{type:String,required:true},
-    profilePhoto:{type:String,required:true},
-    dob:{type:String,required:true},
+    role:{type:String,default:null},
+    username:{type:String,default:null},
+    email:{type:String,default:null},
+    phone:{type:String,default:null},
+    password:{type:String,default:null},
+    profilePhoto:{type:String,default:null},
+    dob:{type:String,default:null},
     licenseImage: { type: Array, default: null },
     insuranceImage: { type: Array, default: null },
     carPhoto:{ type: Array, required: true },
