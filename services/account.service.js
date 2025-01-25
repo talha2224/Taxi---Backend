@@ -4,13 +4,23 @@ const { uploadFile, generatePin, sendOtp } = require("../utils/function")
 
 
 
-
+// {
+//     "uid": "user_uid",
+//     "displayName": "user_name",
+//     "email": "user_email",
+//     "photoURL": "user_profile_pic_url",
+//     "phoneNumber": "user_phone_number",
+//     "emailVerified": true,
+//     "isNewUser": true,
+//     "accessToken": "google_access_token",
+//     "idToken": "google_id_token"
+//   }
 
 
 
 const createAccount = async (req, res) => {
     try {
-        let { role, username, email, password, dob, phone,category,vehcileName,vehicleNumber,longitude,latitude,rate} = req.body
+        let { role, username, email, password, dob, phone, category, vehcileName, vehicleNumber, longitude, latitude, rate } = req.body
         let findUser = await Account.findOne({ email })
         if (findUser) {
             return res.status(400).json({ data: null, msg: "Account already exits", code: 400 })
@@ -61,8 +71,8 @@ const createAccount = async (req, res) => {
                 let hash = await bcrypt.hash(password, 10)
                 let pin = generatePin()
                 const sendSms = await sendOtp(phone, pin);
-                let result = await Account.create({rate,category,otp:pin,phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2,vehcileName,vehicleNumber,longitude,latitude })
-                    return res.status(200).json({otp:pin,data: result, msg: null, status: 200 })
+                let result = await Account.create({ rate, category, otp: pin, phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2, vehcileName, vehicleNumber, longitude, latitude })
+                return res.status(200).json({ otp: pin, data: result, msg: null, status: 200 })
             }
         }
     }
@@ -72,10 +82,13 @@ const createAccount = async (req, res) => {
 }
 const loginAccount = async (req, res) => {
     try {
-        let { phone} = req.body
+        let { phone } = req.body
         let findUser = await Account.findOne({ phone })
         if (!findUser) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
+        }
+        else if (!findUser.accountBlocked) {
+            return res.status(403).json({ data: null, msg: "Account blocked by admin", code: 403 })
         }
         else if (!findUser.accountVerified) {
             let pin = generatePin()
@@ -86,8 +99,8 @@ const loginAccount = async (req, res) => {
         else {
             let pin = generatePin()
             await sendOtp(findUser?.phone, pin);
-            await Account.findByIdAndUpdate(findUser?._id,{otp:pin},{new:true})
-            return res.status(200).json({otp:pin,data: findUser, code: 200,msg:"Login successful" })
+            await Account.findByIdAndUpdate(findUser?._id, { otp: pin }, { new: true })
+            return res.status(200).json({ otp: pin, data: findUser, code: 200, msg: "Login successful" })
         }
     }
     catch (error) {
@@ -121,7 +134,7 @@ const adminLoginAccount = async (req, res) => {
         }
         let compare = await bcrypt.compare(password, findUser.password)
         if (compare) {
-            return res.status(200).json({ data: findUser, code: 200,msg:"Login Successful" })
+            return res.status(200).json({ data: findUser, code: 200, msg: "Login Successful" })
         }
         else {
             return res.status(403).json({ data: null, msg: "Invalid credentails", code: 403 })
@@ -194,6 +207,17 @@ const getAccountByCategory = async (req, res) => {
     }
 }
 
+const getAccounts = async (req, res) => {
+    try {
+        let findUser = await Account.find({}).populate("category")
+        return res.status(200).json({ data: findUser, code: 200 })
+
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
 const changeLocation = async (req, res) => {
     try {
         let { id } = req.params
@@ -228,7 +252,18 @@ const changeRate = async (req, res) => {
     }
 }
 
+const toogleAccountActivation = async (req, res) => {
+    try {
+        let { accountId, toogle } = req.body
+        console.log(accountId, 'accountId')
+        let toogleAccount = await Account.findByIdAndUpdate(accountId, { accountBlocked: Boolean(toogle) }, { new: true })
+        console.log(toogleAccount, 'toogleAccount')
+        return res.status(200).json({ data: toogleAccount, msg: `Account ${Boolean(toogle) ? "Deactivated" : "Activated"} ` })
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).json({ data: null, msg: error })
+    }
+}
 
-
-
-module.exports = { createAccount, loginAccount, createAdminAccount, adminLoginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory }
+module.exports = { toogleAccountActivation, getAccounts, createAccount, loginAccount, createAdminAccount, adminLoginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory }

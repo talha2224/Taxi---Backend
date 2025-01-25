@@ -11,6 +11,15 @@ const createCategory = async(req,res)=>{
         console.log(error)
     }
 }
+const updateCategory = async(req,res)=>{
+    try {
+      let data = await Category.findByIdAndUpdate(req.params.id,req.body) 
+      return  res.status(200).json({data,msg:"Category Updated",status:200})
+    } 
+    catch (error) {
+        console.log(error)
+    }
+}
 
 const getCategory = async(req,res)=>{
     try {
@@ -23,4 +32,4 @@ const getCategory = async(req,res)=>{
 }
 
 
-module.exports = {createCategory,getCategory}
+module.exports = {createCategory,getCategory,updateCategory}

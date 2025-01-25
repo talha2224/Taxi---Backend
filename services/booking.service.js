@@ -1,4 +1,5 @@
 const bookingModel = require("../models/booking.model");
+const { Wallet } = require("../models/wallet.history");
 
 const createBooking = async (req, res) => {
     try {
@@ -65,7 +66,10 @@ const cancellBooking = async (req, res) => {
 }
 const completedRide = async (req, res) => {
     try {
+        const booking = await bookingModel.findById(req.params.id)
         const newBooking = await bookingModel.findByIdAndUpdate(req.params.id, { status: 'Completed', accepted: true }, { $new: true });
+        await Wallet.create({amount:booking?.fare,type:"Transffer",msg:"Payment For Ride",accountId:booking?.rider})
+        await Wallet.create({amount:booking?.fare,type:"Deposit",msg:"Payment Recieved For Ride",accountId:booking?.driver})
         return res.status(200).json({ data: newBooking,msg:"Ride completed",status:200 });
     }
 
@@ -74,7 +78,6 @@ const completedRide = async (req, res) => {
         return res.status(500).json({ message: 'Server error', error });
     }
 }
-
 
 const getBookingById = async (req, res) => {
     try {
@@ -87,5 +90,16 @@ const getBookingById = async (req, res) => {
     }
 }
 
+const getBookings= async (req, res) => {
+    try {
+        const newBooking = await bookingModel.find({}).populate("rider").populate("driver")
+        return res.status(200).json({ data: newBooking,msg:null,status:200 });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error', error });
+    }
+}
 
-module.exports = {createBooking,getPendingBookingForDriver,getPendingBookingForRider,acceptBooking,completedRide,cancellBooking,getBookingById}
+
+module.exports = {getBookings,createBooking,getPendingBookingForDriver,getPendingBookingForRider,acceptBooking,completedRide,cancellBooking,getBookingById}

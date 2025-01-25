@@ -20,7 +20,8 @@ const AccountSchema = mongoose.Schema({
     latitude:{type:Number,default:null},
     rate:{type:Number,default:0},
     otp:{type:Number,default:null},
-    accountVerified:{type:Boolean,default:false}
+    accountVerified:{type:Boolean,default:false},
+    accountBlocked:{type:Boolean,default:false}
 })
 
 

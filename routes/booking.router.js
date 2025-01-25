@@ -1,4 +1,4 @@
-const { createBooking, getPendingBookingForDriver, getPendingBookingForRider, acceptBooking, cancellBooking, completedRide, getBookingById } = require("../services/booking.service")
+const { createBooking, getPendingBookingForDriver, getPendingBookingForRider, acceptBooking, cancellBooking, completedRide, getBookingById, getBookings } = require("../services/booking.service")
 
 const router = require("express").Router()
 router.post("/create",createBooking)
@@ -8,6 +8,7 @@ router.put("/accept/:id",acceptBooking)
 router.put("/cancel/:id",cancellBooking)
 router.put("/complete/:id",completedRide)
 router.get("/single/:id",getBookingById)
+router.get("/all",getBookings)
 
 
 
