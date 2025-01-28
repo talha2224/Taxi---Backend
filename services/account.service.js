@@ -87,7 +87,7 @@ const loginAccount = async (req, res) => {
         if (!findUser) {
             return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
         }
-        else if (!findUser.accountBlocked) {
+        else if (findUser.accountBlocked) {
             return res.status(403).json({ data: null, msg: "Account blocked by admin", code: 403 })
         }
         else if (!findUser.accountVerified) {
