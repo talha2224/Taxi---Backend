@@ -3,7 +3,7 @@ const { Wallet } = require("../models/wallet.history");
 
 const getWalletHistory = async (req,res)=>{
     try {
-        let data = await Wallet.find({accountId:req.params.id})
+        let data = await Wallet.find({accountId:req.params.id}).populate("bookingId").populate("accountId")
         return res.status(200).json({ data:data,msg:null,status:200 });
     } 
     catch (error) {
