@@ -68,8 +68,8 @@ const completedRide = async (req, res) => {
     try {
         const booking = await bookingModel.findById(req.params.id)
         const newBooking = await bookingModel.findByIdAndUpdate(req.params.id, { status: 'Completed', accepted: true }, { $new: true });
-        await Wallet.create({amount:booking?.fare,type:"Transffer",msg:"Payment For Ride",accountId:booking?.rider})
-        await Wallet.create({amount:booking?.fare,type:"Deposit",msg:"Payment Recieved For Ride",accountId:booking?.driver})
+        await Wallet.create({bookingId:req.params.id,amount:booking?.fare,type:"Transffer",msg:"Payment For Ride",accountId:booking?.rider})
+        await Wallet.create({bookingId:req.params.id,amount:booking?.fare,type:"Deposit",msg:"Payment Recieved For Ride",accountId:booking?.driver})
         return res.status(200).json({ data: newBooking,msg:"Ride completed",status:200 });
     }
 
