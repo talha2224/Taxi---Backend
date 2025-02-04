@@ -51,9 +51,10 @@ const createAccount = async (req, res) => {
                     });
                     output4 = await Promise.all(uploadPromises);
                 }
+                console.log(output,output2,output3,output4,'output')
                 let hash = await bcrypt.hash(password, 10)
                 let result = await Account.create({ rate, category,phone, role, username, email, password: hash, dob, profilePhoto: output, carPhotos: output4, insuranceImage: output3, licenseImage: output2, vehcileName, vehicleNumber, longitude, latitude })
-                return res.status(200).json({ otp: pin, data: result, msg: null, status: 200 })
+                return res.status(200).json({data: result, msg: null, status: 200 })
             }
         }
     }
