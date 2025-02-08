@@ -83,6 +83,24 @@ const loginAccount = async (req, res) => {
         console.log(error)
     }
 }
+const loginAccountWithGoogle = async (req, res) => {
+    try {
+        let { email } = req.body
+        let findUser = await Account.findOne({ email })
+        if (!findUser) {
+            return res.status(400).json({ data: null, msg: "Account not exits", code: 400 })
+        }
+        else if (findUser.accountBlocked) {
+            return res.status(403).json({ data: null, msg: "Account blocked by admin", code: 403 })
+        }
+        else {
+            return res.status(200).json({ otp: pin, data: findUser, code: 200, msg: "Login successful" })
+        }
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
 
 const createAdminAccount = async (req, res) => {
     try {
@@ -242,4 +260,4 @@ const toogleAccountActivation = async (req, res) => {
     }
 }
 
-module.exports = { toogleAccountActivation, getAccounts, createAccount, loginAccount, createAdminAccount, adminLoginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory }
+module.exports = { toogleAccountActivation, getAccounts, loginAccountWithGoogle,createAccount, loginAccount, createAdminAccount, adminLoginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory }
