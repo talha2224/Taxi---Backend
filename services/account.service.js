@@ -94,7 +94,7 @@ const loginAccountWithGoogle = async (req, res) => {
             return res.status(403).json({ data: null, msg: "Account blocked by admin", code: 403 })
         }
         else {
-            return res.status(200).json({ otp: pin, data: findUser, code: 200, msg: "Login successful" })
+            return res.status(200).json({data: findUser, code: 200, msg: "Login successful" })
         }
     }
     catch (error) {
