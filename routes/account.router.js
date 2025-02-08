@@ -1,9 +1,10 @@
 const router = require("express").Router()
-const { createAccount, loginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory, adminLoginAccount, createAdminAccount, getAccounts, toogleAccountActivation } = require("../services/account.service")
+const { loginAccountWithGoogle,createAccount, loginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory, adminLoginAccount, createAdminAccount, getAccounts, toogleAccountActivation } = require("../services/account.service")
 const { multipleupload } = require("../config/multer.config")
 
 router.post("/register",multipleupload.fields([{ name: 'profilePhoto', maxCount: 1 },{ name: 'licenseImage', maxCount: 3},{ name: 'carPhotos', maxCount: 3},{ name: 'insuranceImage', maxCount: 3},]),createAccount)
 router.post("/login",loginAccount)
+router.post("/login-google",loginAccountWithGoogle)
 router.post("/admin/register",createAdminAccount)
 router.post("/admin/login",adminLoginAccount)
 router.post("/resend-otp/:id",resendOtp)
