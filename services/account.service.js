@@ -204,7 +204,7 @@ const updateProfilePic = async (req, res) => {
         let image = req.file
         let output = await uploadFile(image);
         let updateUser = await Account.findByIdAndUpdate(req.params.id, {profilePhoto:output}, { new: true });
-        return res.status(200).json({ data: findUser, code: 200,msg:"Profile Updated"})
+        return res.status(200).json({ data: updateUser, code: 200,msg:"Profile Updated"})
     }
     catch (error) {
         console.log(error)
