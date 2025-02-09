@@ -190,6 +190,26 @@ const getAccountById = async (req, res) => {
         console.log(error)
     }
 }
+const updateUsername = async (req, res) => {
+    try {
+        let findUser = await Account.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        return res.status(200).json({ data: findUser, code: 200,msg:"Username Updated"})
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+const updateProfilePic = async (req, res) => {
+    try {
+        let image = req.file
+        let output = await uploadFile(image);
+        let updateUser = await Account.findByIdAndUpdate(req.params.id, {profilePhoto:output}, { new: true });
+        return res.status(200).json({ data: findUser, code: 200,msg:"Profile Updated"})
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
 const getAccountByCategory = async (req, res) => {
     try {
         let findUser = await Account.find({ category: req.params.id }).populate("category")
@@ -260,4 +280,4 @@ const toogleAccountActivation = async (req, res) => {
     }
 }
 
-module.exports = { toogleAccountActivation, getAccounts, loginAccountWithGoogle,createAccount, loginAccount, createAdminAccount, adminLoginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory }
+module.exports = {updateProfilePic,updateUsername, toogleAccountActivation, getAccounts, loginAccountWithGoogle,createAccount, loginAccount, createAdminAccount, adminLoginAccount, getAccountById, resendOtp, verifyOtp, changeLocation, changeRate, getAccountByCategory }
